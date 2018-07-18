@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  soundCloud_UerID: 'e59d8b005900e38649c1882b87cd828d',
+  soundCloud_RedirectURL: 'http://localhost:4200'
 };
 
 /*
