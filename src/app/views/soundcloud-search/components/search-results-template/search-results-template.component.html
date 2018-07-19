@@ -1,0 +1,8 @@
+<section class="results-container">
+
+  <mat-option (click)="selected(track)" *ngFor="let track of trackList[0]">
+    <span class="track-name">{{track.user.title}}</span>
+    <span class="user-name">{{track.user.userName}}</span>
+  </mat-option>
+
+</section>

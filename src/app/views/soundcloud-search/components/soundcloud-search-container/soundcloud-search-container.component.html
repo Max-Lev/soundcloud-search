@@ -1,50 +1,21 @@
-<form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-form">
-  <mat-form-field class="form-width-80">
-    <input formControlName="searchInput" autocomplete="off" matInput placeholder="sound cloud search" value="">
-  </mat-form-field>
-  <div class="search-btn-container">
-    <button type="submit" mat-raised-button color="primary">Search</button>
-  </div>
-  <div class="search-btn-container">
-    <button mat-raised-button color="primary">Next</button>
-  </div>
-</form>
+<section class="form-container">
 
-<ng-template>
+  <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="search-form">
 
-</ng-template>
+    <mat-form-field class="form-width-80">
+      <input formControlName="searchInput" autocomplete="off" matInput placeholder="sound cloud search" value="">
+    </mat-form-field>
 
+    <div class="search-btn-container">
+      <button type="submit" mat-raised-button color="primary">Search</button>
+    </div>
 
+    <div class="search-btn-container">
+      <button mat-raised-button color="primary">Next</button>
+    </div>
 
-<!-- <ng-template [ngIf]="isResponse" [matMenuTriggerFor]="appMenu"> -->
-<!-- <ng-template  [matMenuTriggerFor]="appMenu"> -->
-<!-- <div [matMenuTriggerFor]="appMenu"> -->
-<!-- <button mat-button [matMenuTriggerFor]="menu">Menu</button> -->
-<!-- <mat-menu #appMenu="matMenu">
-    <button mat-menu-item>Item 1</button>
-    <button mat-menu-item>Item 2</button>
-  </mat-menu>
-  </ng-template> -->
-<!-- </div> -->
+  </form>
 
+  <ng-template #resultsTemp></ng-template>
 
-<!-- <div class="ng-trigger ng-trigger-transformPanel ng-tns-c32-63 mat-select-panel mat-primary ng-star-inserted mat-select-panel-done-animating"
-  style="transform-origin: 50% 24px 0px; font-size: 16px; opacity: 1; min-width: calc(100% + 32px); transform: scaleY(1);">
-  <div class="mat-select-content ng-trigger ng-trigger-fadeInContent" style="opacity: 1;">
-    <mat-option _ngcontent-c44="" class="mat-option ng-star-inserted mat-active" role="option" tabindex="0" id="mat-option-6"
-      aria-selected="false" aria-disabled="false">
-      <span class="mat-option-text">Steak</span>
-      <div class="mat-option-ripple mat-ripple" mat-ripple=""></div>
-    </mat-option>
-    <mat-option _ngcontent-c44="" class="mat-option ng-star-inserted" role="option" tabindex="0" id="mat-option-7" aria-selected="false"
-      aria-disabled="false">
-      <span class="mat-option-text">Pizza</span>
-      <div class="mat-option-ripple mat-ripple" mat-ripple=""></div>
-    </mat-option>
-    <mat-option _ngcontent-c44="" class="mat-option ng-star-inserted" role="option" tabindex="0" id="mat-option-8" aria-selected="false"
-      aria-disabled="false">
-      <span class="mat-option-text">Tacos</span>
-      <div class="mat-option-ripple mat-ripple" mat-ripple=""></div>
-    </mat-option>
-  </div>
-</div> -->
+</section>

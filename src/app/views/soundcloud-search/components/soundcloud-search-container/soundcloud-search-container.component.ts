@@ -1,53 +1,84 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '../../../../../../node_modules/@angular/forms';
+import {
+  Component, OnInit, ViewEncapsulation, ChangeDetectorRef, ViewChild, ViewContainerRef,
+  AfterViewInit,
+  ComponentFactoryResolver,
+  Inject
+} from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { SearchService } from '../../services/search.service';
-import { ISoundCloudTrackResponse } from '../../models/sound-cloud-track.model';
-import { MatMenuTrigger } from '../../../../../../node_modules/@angular/material/menu';
+import { ISoundCloudTrackResponse, ITrackCollection, SoundCloudTrackResponse, TrackCollectionModel } from '../../models/soundcloud-track-search-response.model';
+import { SearchResultsTemplateComponent } from '../search-results-template/search-results-template.component';
+import { EmptySearchTemplateComponent } from '../empty-search-template/empty-search-template.component';
 
 @Component({
   selector: 'app-soundcloud-search-container',
   templateUrl: './soundcloud-search-container.component.html',
   styleUrls: ['./soundcloud-search-container.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  entryComponents: [
+    SearchResultsTemplateComponent,
+    EmptySearchTemplateComponent
+  ]
 })
-export class SoundcloudSearchContainerComponent implements OnInit {
+export class SoundcloudSearchContainerComponent implements OnInit, AfterViewInit {
 
   searchForm: FormGroup;
 
-  isResponse: boolean = false;
+  response: TrackCollectionModel[];
 
-  response: any[] = [];
+  @ViewChild('resultsTemp', { read: ViewContainerRef }) templateContainer: ViewContainerRef;
 
-  // @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
-
+  // @Inject(ComponentFactoryResolver) resolver
   constructor(private formBuilder: FormBuilder, private searchService: SearchService,
-    private ref: ChangeDetectorRef) {
-    this.searchForm = this.formBuilder.group({
-      searchInput: new FormControl('', Validators.required)
-    });
-    console.log(this.searchForm)
-  }
+    private resolver: ComponentFactoryResolver, private ref: ChangeDetectorRef) {
+    this.resolver = resolver;
+    this.searchFormBuilder();
+  };
 
-  ngOnInit() {
-  }
+  ngOnInit() { };
+
+  ngAfterViewInit(): void { };
 
   onSubmit() {
     if (this.searchForm.valid) {
-      console.log('valid');
       const searchParam = this.searchForm.controls['searchInput'].value;
       this.searchService.search(searchParam).then((tracksResponse: ISoundCloudTrackResponse) => {
-        console.log(tracksResponse);
-        this.isResponse = (tracksResponse.collection.length > 0) ? true : false;
-        this.response = tracksResponse.collection;
-  
-        this.ref.detectChanges();
-        console.log(this.isResponse)
+
+        this.response = this.setCollectionModel(tracksResponse);
+        (this.response.length > 0) ? this.createResultsComponent(this.response) : this.createEmptyResultsComponent();
+
+        this.ref.markForCheck();
         return tracksResponse;
       });
-    } else {
-      console.log('not valid');
-      return false;
     }
+  };
+
+  setCollectionModel(response: ISoundCloudTrackResponse): TrackCollectionModel[] {
+    const model = new SoundCloudTrackResponse(response);
+    return model.getDisplayData();
+  };
+
+  createResultsComponent(data: any) {
+    this.templateContainer.clear();
+    const factory = this.resolver.resolveComponentFactory(SearchResultsTemplateComponent);
+    factory.create(this.templateContainer.injector);
+    const dynamicComponentRef = this.templateContainer.createComponent(factory);
+    dynamicComponentRef.instance.trackList = [data];
+    this.ref.detectChanges();
+  };
+
+  createEmptyResultsComponent() {
+    this.templateContainer.clear();
+    const factory = this.resolver.resolveComponentFactory(EmptySearchTemplateComponent);
+    const dynamicComponentRef = this.templateContainer.createComponent(factory);
+    dynamicComponentRef.instance.title = 'No Results Found';
+    this.ref.detectChanges();
   }
+
+  searchFormBuilder() {
+    this.searchForm = this.formBuilder.group({
+      searchInput: new FormControl('', Validators.required)
+    });
+  };
 
 }

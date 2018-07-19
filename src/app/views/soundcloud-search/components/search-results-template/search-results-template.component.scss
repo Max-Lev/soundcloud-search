@@ -1,0 +1,44 @@
+:host,
+app-search-results-template {
+  border: 1px solid lightgrey;
+  position: relative;
+  display: flex;
+  width: inherit;
+}
+
+.results-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #333;
+  background-color: #333;
+}
+
+mat-option>.mat-option-text {
+  justify-content: space-between;
+  display: flex;
+}
+
+.track-name,
+.user-name {
+  display: block;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  color: #eee;
+}
+
+.track-name {
+  width: 70%;
+  text-align: left;
+}
+
+.user-name {
+  width: 30%;
+  text-align: right;
+}
+
+.mat-option:hover:not(.mat-option-disabled) {
+  background: rgba(0, 0, 0, 1);
+}

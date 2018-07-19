@@ -1,0 +1,12 @@
+:host {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  width: inherit;
+  justify-content: center;
+  padding: 1rem;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: #333;
+  color: #eee;
+}
