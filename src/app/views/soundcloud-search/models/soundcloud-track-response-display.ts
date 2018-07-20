@@ -1,11 +1,13 @@
 
-export interface ITrackDisplay {
+export interface ITrackSearchUserViewModel {
     userName: string;
     title: string;
     userID: number;
 };
-
-export class TrackDisplay implements ITrackDisplay {
+/**
+ * @class track search view model
+ */
+export class TrackSearchUserViewModel implements ITrackSearchUserViewModel {
     userName: string;
     title: string;
     userID: number;

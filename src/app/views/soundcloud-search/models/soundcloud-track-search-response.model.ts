@@ -1,23 +1,25 @@
-import { ITrackDisplay, TrackDisplay } from "./soundcloud-track-response-display";
+import { ITrackSearchUserViewModel, TrackSearchUserViewModel } from "./soundcloud-track-response-display";
 
 export interface ISoundCloudTrackResponse {
-    collection: ITrackCollection[];
-    nextPagination: string;
+    collection: ITrackViewModelCollection[];
+    next_href: string;
 };
-
+/**
+ * @class search response main model
+ */
 export class SoundCloudTrackResponse implements ISoundCloudTrackResponse {
-    collection: ITrackCollection[];
-    nextPagination: string;
-    displayData: TrackCollectionModel[];
+    collection: ITrackViewModelCollection[];
+    next_href: string;
+    displayData: TrackViewModelCollection[];
     constructor(response: ISoundCloudTrackResponse) {
         this.collection = response.collection;
-        this.nextPagination = response.nextPagination;
+        this.next_href = response.next_href;
         this.setCollectionData(this.collection);
     };
 
     setCollectionData(collection: any[]) {
         this.displayData = collection.map(item => {
-            return new TrackCollectionModel(item);
+            return new TrackViewModelCollection(item);
         });
     };
 
@@ -26,19 +28,19 @@ export class SoundCloudTrackResponse implements ISoundCloudTrackResponse {
     };
 };
 
-export interface ITrackCollection {
+export interface ITrackViewModelCollection {
     trackID: number;
     title: string;
-    user: ITrackDisplay;
+    user: ITrackSearchUserViewModel;
 };
 
-export class TrackCollectionModel implements ITrackCollection {
+export class TrackViewModelCollection implements ITrackViewModelCollection {
     trackID: number;
     title: string;
-    user: ITrackDisplay;
+    user: ITrackSearchUserViewModel;
     constructor(data: any) {
         this.trackID = data.id;
         this.title = data.title;
-        this.user = new TrackDisplay(data.user, this.title);
+        this.user = new TrackSearchUserViewModel(data.user, this.title);
     };
 };

@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, OnChanges, ViewEncapsulation } from '@angular/core';
-import { TrackCollectionModel } from '../../models/soundcloud-track-search-response.model';
+import { Component, OnInit, Input, OnChanges, ViewEncapsulation, OnDestroy } from '@angular/core';
+import { TrackViewModelCollection } from '../../models/soundcloud-track-search-response.model';
 
 @Component({
   selector: 'app-search-results-template',
@@ -7,27 +7,18 @@ import { TrackCollectionModel } from '../../models/soundcloud-track-search-respo
   styleUrls: ['./search-results-template.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class SearchResultsTemplateComponent implements OnInit, OnChanges {
+export class SearchResultsTemplateComponent implements OnInit, OnChanges, OnDestroy {
 
-  @Input() trackList: any[] = [];
+  @Input() trackList: TrackViewModelCollection[] = [];
 
-  constructor() {
+  constructor() { };
 
-  };
+  ngOnInit() { };
 
-  ngOnInit() {
-    this.trackList;
-    debugger;
-  };
+  ngOnChanges() { };
 
-  ngOnChanges() {
+  ngOnDestroy(): void { };
 
-    console.log(this.trackList)
-    debugger;
-  };
-
-  selected(item: any) {
-    console.log(item)
-  };
+  selected(item: TrackViewModelCollection) { console.log(item) };
 
 }

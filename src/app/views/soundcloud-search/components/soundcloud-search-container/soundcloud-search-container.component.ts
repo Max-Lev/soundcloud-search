@@ -1,15 +1,12 @@
 import {
-  Component, OnInit, ViewEncapsulation, ChangeDetectorRef, ViewChild, ViewContainerRef,
-  AfterViewInit,
-  ComponentFactoryResolver,
-  Inject
+  Component, OnInit, ViewEncapsulation, ChangeDetectorRef, ViewChild, ViewContainerRef, AfterViewInit, ComponentFactoryResolver
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { SearchService } from '../../services/search.service';
-import { ISoundCloudTrackResponse, ITrackCollection, SoundCloudTrackResponse, TrackCollectionModel } from '../../models/soundcloud-track-search-response.model';
+import { ISoundCloudTrackResponse, SoundCloudTrackResponse, TrackViewModelCollection } from '../../models/soundcloud-track-search-response.model';
 import { SearchResultsTemplateComponent } from '../search-results-template/search-results-template.component';
 import { EmptySearchTemplateComponent } from '../empty-search-template/empty-search-template.component';
-
+export const NO_RESULTS: string = 'No Results Found';
 @Component({
   selector: 'app-soundcloud-search-container',
   templateUrl: './soundcloud-search-container.component.html',
@@ -22,59 +19,105 @@ import { EmptySearchTemplateComponent } from '../empty-search-template/empty-sea
 })
 export class SoundcloudSearchContainerComponent implements OnInit, AfterViewInit {
 
+  nextDisabled: boolean = true;
+
   searchForm: FormGroup;
-
-  response: TrackCollectionModel[];
-
+  /**
+   * @prop dynamic component template container
+   */
   @ViewChild('resultsTemp', { read: ViewContainerRef }) templateContainer: ViewContainerRef;
+  /**
+   * @prop search results list;
+   */
+  searchTracksResponse: SoundCloudTrackResponse;
+  /**
+   * @prop next page search flag
+   */
+  isNextPageRequest: boolean = false;
+  /**
+   * @prop next page search url
+   */
+  nextUrl: string;
 
-  // @Inject(ComponentFactoryResolver) resolver
-  constructor(private formBuilder: FormBuilder, private searchService: SearchService,
-    private resolver: ComponentFactoryResolver, private ref: ChangeDetectorRef) {
-    this.resolver = resolver;
+  constructor(private formBuilder: FormBuilder, private searchService: SearchService, private factoryResolver: ComponentFactoryResolver, private ref: ChangeDetectorRef) {
+    this.factoryResolver = factoryResolver;
     this.searchFormBuilder();
   };
 
   ngOnInit() { };
 
   ngAfterViewInit(): void { };
-
+  /**
+   * @method search form submit
+   */
   onSubmit() {
     if (this.searchForm.valid) {
       const searchParam = this.searchForm.controls['searchInput'].value;
       this.searchService.search(searchParam).then((tracksResponse: ISoundCloudTrackResponse) => {
-
-        this.response = this.setCollectionModel(tracksResponse);
-        (this.response.length > 0) ? this.createResultsComponent(this.response) : this.createEmptyResultsComponent();
-
-        this.ref.markForCheck();
+        this.setDynamicComponentTemplate(tracksResponse);
+        this.isNextPageRequest = true;
+        this.ref.detectChanges();
         return tracksResponse;
       });
     }
   };
-
-  setCollectionModel(response: ISoundCloudTrackResponse): TrackCollectionModel[] {
-    const model = new SoundCloudTrackResponse(response);
-    return model.getDisplayData();
+  /**
+   * @method dynamic component template of search track results
+   */
+  setDynamicComponentTemplate(tracksResponse: ISoundCloudTrackResponse) {
+    const viewModelData: TrackViewModelCollection[] = this.setViewModelData(tracksResponse);
+    (viewModelData.length > 0) ? this.createSuccessResultsTemplate(viewModelData) : this.createEmptyResultsTemplate();
+    this.isNextPagingBtnActive(this.searchTracksResponse.next_href);
+    this.ref.detectChanges();
   };
-
-  createResultsComponent(data: any) {
+  /**
+   * @method convert view model data from search response
+   */
+  setViewModelData(response: ISoundCloudTrackResponse): TrackViewModelCollection[] {
+    this.searchTracksResponse = new SoundCloudTrackResponse(response);
+    return this.searchTracksResponse.getDisplayData();
+  };
+  /**
+   * @method set is next paging btn active | disabled
+   */
+  isNextPagingBtnActive(isnextPagination: string): boolean {
+    this.nextDisabled = (isnextPagination === undefined) ? true : false;
+    return this.nextDisabled;
+  };
+  /**
+   * @method get next search page
+   */
+  nextSearchPageAPI() {
+    let url: string = (this.isNextPageRequest) ? this.searchTracksResponse.next_href : this.nextUrl;
+    this.searchService.nextPage(url).subscribe((tracksResponse: ISoundCloudTrackResponse) => {
+      this.isNextPageRequest = false;
+      this.nextUrl = tracksResponse.next_href;
+      this.setDynamicComponentTemplate(tracksResponse);
+      return tracksResponse;
+    });
+  };
+  /**
+   * @method search results dynamic template container
+   */
+  createSuccessResultsTemplate(data: any) {
     this.templateContainer.clear();
-    const factory = this.resolver.resolveComponentFactory(SearchResultsTemplateComponent);
+    const factory = this.factoryResolver.resolveComponentFactory(SearchResultsTemplateComponent);
     factory.create(this.templateContainer.injector);
     const dynamicComponentRef = this.templateContainer.createComponent(factory);
     dynamicComponentRef.instance.trackList = [data];
-    this.ref.detectChanges();
   };
-
-  createEmptyResultsComponent() {
+  /**
+   * @method empty search results dynamic template container
+   */
+  createEmptyResultsTemplate() {
     this.templateContainer.clear();
-    const factory = this.resolver.resolveComponentFactory(EmptySearchTemplateComponent);
+    const factory = this.factoryResolver.resolveComponentFactory(EmptySearchTemplateComponent);
     const dynamicComponentRef = this.templateContainer.createComponent(factory);
-    dynamicComponentRef.instance.title = 'No Results Found';
-    this.ref.detectChanges();
-  }
-
+    dynamicComponentRef.instance.title = NO_RESULTS;
+  };
+  /**
+   * @method reactive form builder
+   */
   searchFormBuilder() {
     this.searchForm = this.formBuilder.group({
       searchInput: new FormControl('', Validators.required)
